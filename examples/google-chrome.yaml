@@ -1,0 +1,37 @@
+container:
+  template: ubuntu
+  distro: ubuntu
+  release: trusty
+  arch: amd64
+mounts:
+  - passthru: /dev/dri
+    directory: true
+  - passthru: /dev/snd
+    directory: true
+  - passthru: /tmp/.X11-unix
+    directory: true
+  - passthru: /dev/video0
+share-pulse-audio: true
+install-script: |
+  #!/bin/bash -x
+  export DEBIAN_FRONTEND=noninteractive
+  umount /tmp/.X11-unix
+  apt-get update
+  apt-get dist-upgrade -y
+  apt-get install -y --no-install-recommends wget ubuntu-artwork dmz-cursor-theme ca-certificates pulseaudio
+  wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb
+  wget https://dl.google.com/linux/direct/google-talkplugin_current_amd64.deb -O /tmp/talk.deb
+  dpkg -i /tmp/chrome.deb /tmp/talk.deb
+  apt-get -f install -y --no-install-recommends
+  sudo -u ubuntu mkdir -p /home/ubuntu/.pulse/
+  sudo -u ubuntu tee /home/ubuntu/.pulse/client.conf <<EOF
+  disable-shm=yes
+  EOF
+launch-command: google-chrome --disable-setuid-sandbox $*
+desktop-launcher:
+  name: Google Chrome
+  comment: with Google+ Hangouts plugin
+  iconPath: /opt/google/chrome/product_logo_256.png
+  categories:
+    - Network
+    - WebBrowser

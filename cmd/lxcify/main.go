@@ -18,11 +18,25 @@
 package main
 
 import (
+	"flag"
+	"io/ioutil"
 	"log"
 	"os"
 
-	"github.com/cmars/lxcify"
+	"github.com/juju/errors"
+
+	"github.com/cmars/lxcify/template"
 )
+
+var (
+	config string
+	name   string
+)
+
+func init() {
+	flag.StringVar(&config, "config", "", "app config file")
+	flag.StringVar(&name, "name", "", "container name")
+}
 
 func die(err error) {
 	if err != nil {
@@ -31,54 +45,79 @@ func die(err error) {
 	os.Exit(0)
 }
 
+func parseFlags() {
+	flag.Parse()
+	if config == "" {
+		log.Println("missing required flag -config")
+		usage()
+	}
+	if name == "" {
+		log.Println("missing required flag -name")
+		usage()
+	}
+}
+
+func usage() {
+	flag.PrintDefaults()
+	os.Exit(1)
+}
+
 func main() {
-	c, err := lxcify.NewContainer("rubik")
+	parseFlags()
+
+	err := run()
 	if err != nil {
 		die(err)
 	}
+}
+
+func run() error {
+	var conf []byte
+	var err error
+
+	f, err := os.Open(config)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	defer f.Close()
+	conf, err = ioutil.ReadAll(f)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	t, err := template.Parse(conf)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	c, err := t.Container(name)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	app, err := t.App()
+	if err != nil {
+		return errors.Trace(err)
+	}
+
 	err = c.Create()
 	if err != nil {
-		die(err)
+		return errors.Trace(err)
 	}
 
 	err = c.Start()
 	if err != nil {
-		die(err)
+		return errors.Trace(err)
 	}
 
-	app := &lxcify.App{
-		InstallScript: `#!/bin/bash -x
-export DEBIAN_FRONTEND=noninteractive
-umount /tmp/.X11-unix
-apt-get update
-apt-get dist-upgrade -y
-apt-get install -y --no-install-recommends wget ubuntu-artwork dmz-cursor-theme ca-certificates pulseaudio
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb
-wget https://dl.google.com/linux/direct/google-talkplugin_current_amd64.deb -O /tmp/talk.deb
-dpkg -i /tmp/chrome.deb /tmp/talk.deb
-apt-get -f install -y --no-install-recommends
-sudo -u ubuntu mkdir -p /home/ubuntu/.pulse/
-sudo -u ubuntu tee /home/ubuntu/.pulse/client.conf <<EOF
-disable-shm=yes
-EOF
-`,
-		LaunchCommand: "google-chrome --disable-setuid-sandbox $*",
-		DesktopLauncher: &lxcify.DesktopLauncher{
-			Name:       "Google Chrome",
-			Comment:    "LXC",
-			IconPath:   "/opt/google/chrome/product_logo_256.png",
-			Categories: []string{"Network", "WebBrowser"},
-		},
-	}
 	err = c.Install(app)
 	if err != nil {
-		die(err)
+		return errors.Trace(err)
 	}
 
 	err = c.Stop()
 	if err != nil {
-		die(err)
+		return errors.Trace(err)
 	}
 
-	die(nil)
+	return nil
 }

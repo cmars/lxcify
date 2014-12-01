@@ -29,10 +29,8 @@ import (
 )
 
 type App struct {
-	Mounts          []Mount
 	InstallScript   string
 	LaunchCommand   string
-	SharePulseAudio bool
 	DesktopLauncher *DesktopLauncher
 }
 
