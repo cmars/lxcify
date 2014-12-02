@@ -68,9 +68,9 @@ Version=1.0
 Name={{.Name}}
 Comment={{.Comment}}
 Exec={{.ConfigPath}}/{{.LxcName}}/launch.sh %U
-Icon={{.ConfigPath}}/{{.LxcName}}/rootfs{{.IconPath}}
-Type=Application
-{{if .Categories}}Categories={{range .Categories}}{{.}}{{end}}{{end}}
+{{if .IconPath}}Icon={{.ConfigPath}}/{{.LxcName}}/rootfs{{.IconPath}}
+{{end}}Type=Application
+{{if .Categories}}Categories={{range $i, $cat := .Categories}}{{if gt $i 0}},{{end}}{{$cat}}{{end}}{{end}}
 `
 
 func (c *Container) Install(app *App) error {

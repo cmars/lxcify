@@ -32,7 +32,7 @@ install-script: |
 launch-command: /opt/tor-browser_en-US/start-tor-browser
 desktop-launcher:
   name: Tor Browser
-  #iconPath: /opt/google/chrome/product_logo_256.png
+  icon-path: /opt/tor-browser_en-US/Browser/browser/icons/mozicon128.png
   categories:
     - Network
     - WebBrowser
