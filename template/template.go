@@ -72,10 +72,9 @@ type mount struct {
 }
 
 type desktopLauncher struct {
-	Name       string   `yaml:"name"`
-	Comment    string   `yaml:"comment,omitempty"`
-	IconPath   string   `yaml:"icon-path"`
-	Categories []string `yaml:"categories,omitempty"`
+	Name     string `yaml:"name"`
+	Comment  string `yaml:"comment,omitempty"`
+	IconPath string `yaml:"icon-path"`
 }
 
 func (t *Template) Container(name string) (*lxcify.Container, error) {
@@ -148,10 +147,9 @@ func (dl *desktopLauncher) desktopLauncher() *lxcify.DesktopLauncher {
 		return nil
 	}
 	return &lxcify.DesktopLauncher{
-		Name:       dl.Name,
-		Comment:    dl.Comment,
-		IconPath:   dl.IconPath,
-		Categories: dl.Categories,
+		Name:     dl.Name,
+		Comment:  dl.Comment,
+		IconPath: dl.IconPath,
 	}
 }
 

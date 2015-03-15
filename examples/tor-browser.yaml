@@ -18,11 +18,13 @@ install-script: |
   apt-get update
   apt-get dist-upgrade -y
   apt-get install -y --no-install-recommends wget ubuntu-artwork dmz-cursor-theme ca-certificates pulseaudio xz-utils libdbus-glib-1-2 libxt6
-  wget https://www.torproject.org/dist/torbrowser/4.0.1/tor-browser-linux64-4.0.1_en-US.tar.xz -O /tmp/torbrowser.xz
-  wget https://www.torproject.org/dist/torbrowser/4.0.1/tor-browser-linux32-4.0.1_en-US.tar.xz.asc -O /tmp/torbrowser.xz.asc
-  #gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 0x416F061063FEE659
-  #gpg --verify /tmp/torbrowser.xz
-  mkdir /opt
+  wget https://www.torproject.org/dist/torbrowser/4.0.4/tor-browser-linux64-4.0.4_en-US.tar.xz -O /tmp/torbrowser.xz
+  wget https://www.torproject.org/dist/torbrowser/4.0.4/tor-browser-linux32-4.0.4_en-US.tar.xz.asc -O /tmp/torbrowser.xz.asc
+
+  gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 0x4E2C6E8793298290
+  gpg --verify /tmp/torbrowser.xz
+
+  mkdir -p /opt
   cd /opt
   tar -xvJf /tmp/torbrowser.xz
   sudo -u ubuntu mkdir -p /home/ubuntu/.pulse/
@@ -34,5 +36,4 @@ desktop-launcher:
   name: Tor Browser
   icon-path: /opt/tor-browser_en-US/Browser/browser/icons/mozicon128.png
   categories:
-    - Network
-    - WebBrowser
+    - LXCify

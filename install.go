@@ -35,10 +35,9 @@ type App struct {
 }
 
 type DesktopLauncher struct {
-	Name       string
-	Comment    string
-	IconPath   string
-	Categories []string
+	Name     string
+	Comment  string
+	IconPath string
 }
 
 const launchScript = `#!/bin/sh
@@ -65,12 +64,12 @@ fi
 
 const desktopLauncher = `[Desktop Entry]
 Version=1.0
-Name={{.Name}}
+Name={{.LxcName}} - {{.Name}}
 Comment={{.Comment}}
 Exec={{.ConfigPath}}/{{.LxcName}}/launch.sh %U
 {{if .IconPath}}Icon={{.ConfigPath}}/{{.LxcName}}/rootfs{{.IconPath}}
 {{end}}Type=Application
-{{if .Categories}}Categories={{range $i, $cat := .Categories}}{{if gt $i 0}},{{end}}{{$cat}}{{end}}{{end}}
+Categories=LXCify
 `
 
 func (c *Container) Install(app *App) error {
@@ -143,7 +142,7 @@ func (c *Container) installLauncherScript(app *App) error {
 
 func (c *Container) installDesktopLauncher(app *App) error {
 	f, err := os.OpenFile(path.Join(os.Getenv("HOME"), ".local", "share", "applications",
-		fmt.Sprintf("%s.desktop", app.DesktopLauncher.Name)),
+		fmt.Sprintf("%s.desktop", c.Name())),
 		os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Trace(err)
