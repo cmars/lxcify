@@ -1,0 +1,27 @@
+container:
+  template: ubuntu
+  distro: ubuntu
+  release: trusty
+  arch: amd64
+mounts:
+  - passthru: /dev/dri
+    directory: true
+  - passthru: /dev/snd
+    directory: true
+  - passthru: /tmp/.X11-unix
+    directory: true
+share-pulse-audio: true
+install-script: |
+  #!/bin/bash -xe
+  export DEBIAN_FRONTEND=noninteractive
+  umount /tmp/.X11-unix
+  apt-get update
+  apt-get dist-upgrade -y
+  apt-get install -y --no-install-recommends wget ubuntu-artwork dmz-cursor-theme ca-certificates pulseaudio libice6 firefox flashplugin-installer
+
+launch-command: firefox -private $*
+desktop-launcher:
+  name: Firefox with Flash
+  icon-path: /usr/share/app-install/icons/firefox.png
+  categories:
+    - Network
